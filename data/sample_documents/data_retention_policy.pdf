@@ -1,0 +1,46 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 813 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+72 760 Td
+(Data Retention and Access Policy \(Version 2.0\)) Tj T*
+() Tj T*
+(1. Purpose: this policy defines how long lakehouse data is kept and who may access it.) Tj T*
+(2. Bronze data is retained for 90 days, then deleted by the scheduled VACUUM job.) Tj T*
+(3. Silver data is retained for 3 years. Gold data products are retained for 7 years.) Tj T*
+(4. Personal data \(names, e-mail addresses, phone numbers\) must be masked in Gold tables.) Tj T*
+(5. Access to Silver and Gold tables is granted through Unity Catalog groups only.) Tj T*
+(6. Service principals used by pipelines receive the minimum privileges they need.) Tj T*
+(7. Pipeline logs must not contain credentials, tokens or personal data.) Tj T*
+(8. Exceptions require written approval from the Data Governance Board.) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1175
+%%EOF

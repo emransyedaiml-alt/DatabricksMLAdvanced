@@ -1,0 +1,60 @@
+# Databricks Asset Bundle for the Enterprise Intelligent Knowledge Assistant.
+#   databricks bundle validate -t dev
+#   databricks bundle deploy   -t dev
+#   databricks bundle run eika_build_index -t dev
+# Three targets (dev → staging → prod) and cost tags follow databricks-solutions/agentops-stacks; the app's resource
+# grants (CAN_QUERY on model endpoints, injected into app.yaml with valueFrom) follow databricks/app-templates.
+bundle:
+  name: eika
+
+include:
+  - deployment/workflows/*.yml
+
+variables:
+  profile:
+    description: Configuration profile used by jobs and the app (learning | enterprise)
+    default: learning
+  notification_email:
+    description: Where job failure e-mails go
+    default: ""
+  llm_endpoint:
+    description: Chat model endpoint the app and agent call
+    default: databricks-meta-llama-3-3-70b-instruct
+  embedding_endpoint:
+    description: Embedding endpoint used for questions (must match the index)
+    default: databricks-bge-large-en
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      profile: learning
+  staging:
+    mode: production
+    variables:
+      profile: enterprise
+    # Promote to prod only when config/eval_gates.yaml passes on this target (see deployment/cicd).
+  prod:
+    mode: production
+    variables:
+      profile: enterprise
+    # run_as:
+    #   service_principal_name: <application-id-of-the-eika-service-principal>
+
+resources:
+  apps:
+    eika_app:
+      name: eika-assistant-${bundle.target}
+      description: Enterprise Intelligent Knowledge Assistant (RAG + pipeline investigation agent)
+      source_code_path: ./
+      # Grants for the app's service principal; app.yaml reads the names with valueFrom.
+      resources:
+        - name: llm-endpoint
+          serving_endpoint:
+            name: ${var.llm_endpoint}
+            permission: CAN_QUERY
+        - name: embedding-endpoint
+          serving_endpoint:
+            name: ${var.embedding_endpoint}
+            permission: CAN_QUERY

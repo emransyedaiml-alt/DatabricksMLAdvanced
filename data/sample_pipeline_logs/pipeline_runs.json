@@ -1,0 +1,49 @@
+{
+  "_notice": "SYNTHETIC LEARNING DATA. These runs are invented for training and tests; they are not real monitoring data.",
+  "synthetic": true,
+  "as_of_date": "2026-10-28",
+  "adf_pipeline_runs": [
+    {"synthetic": true, "run_id": "adf-run-1001", "pipeline_name": "customer_ingestion", "adf_pipeline": "pl_customer_ingestion",
+     "run_date": "2026-10-26", "start": "2026-10-26T04:00:05Z", "end": "2026-10-26T04:21:40Z", "status": "Succeeded",
+     "activities": [
+       {"name": "copy_crm_export", "type": "Copy", "status": "Succeeded", "rows_copied": 182340},
+       {"name": "run_customer_silver_merge", "type": "DatabricksNotebook", "status": "Succeeded", "databricks_run_id": 9001}]},
+    {"synthetic": true, "run_id": "adf-run-1002", "pipeline_name": "customer_ingestion", "adf_pipeline": "pl_customer_ingestion",
+     "run_date": "2026-10-27", "start": "2026-10-27T04:00:03Z", "end": "2026-10-27T04:09:58Z", "status": "Failed",
+     "activities": [
+       {"name": "copy_crm_export", "type": "Copy", "status": "Succeeded", "rows_copied": 183015},
+       {"name": "run_customer_silver_merge", "type": "DatabricksNotebook", "status": "Failed", "databricks_run_id": 9002,
+        "error_code": "3204", "message": "Databricks job run 9002 failed. See the Databricks run output for details."}]},
+    {"synthetic": true, "run_id": "adf-run-2002", "pipeline_name": "sales_daily_load", "adf_pipeline": "pl_sales_daily",
+     "run_date": "2026-10-27", "start": "2026-10-27T05:00:02Z", "end": "2026-10-27T05:14:11Z", "status": "Succeeded",
+     "activities": [
+       {"name": "copy_erp_sales", "type": "Copy", "status": "Succeeded", "rows_copied": 0,
+        "note": "No new file found at 05:00; the ERP file landed at 05:42."},
+       {"name": "run_sales_silver_load", "type": "DatabricksNotebook", "status": "Succeeded", "databricks_run_id": 9102}]},
+    {"synthetic": true, "run_id": "adf-run-3002", "pipeline_name": "inventory_snapshot", "adf_pipeline": "pl_inventory_snapshot",
+     "run_date": "2026-10-27", "start": "2026-10-27T06:30:00Z", "end": "2026-10-27T09:02:45Z", "status": "Succeeded",
+     "activities": [
+       {"name": "call_warehouse_api", "type": "WebActivity", "status": "Succeeded"},
+       {"name": "run_inventory_gold_build", "type": "DatabricksNotebook", "status": "Succeeded", "databricks_run_id": 9202}]}
+  ],
+  "databricks_job_runs": [
+    {"synthetic": true, "job_id": 501, "job_name": "customer_silver_merge", "run_id": 9001, "status": "SUCCESS",
+     "start": "2026-10-26T04:05:10Z", "duration_s": 950},
+    {"synthetic": true, "job_id": 501, "job_name": "customer_silver_merge", "run_id": 9002, "status": "FAILED",
+     "start": "2026-10-27T04:05:02Z", "duration_s": 280, "failed_task": "merge_into_silver"},
+    {"synthetic": true, "job_id": 502, "job_name": "sales_silver_load", "run_id": 9102, "status": "SUCCESS",
+     "start": "2026-10-27T05:05:00Z", "duration_s": 120, "rows_written": 0},
+    {"synthetic": true, "job_id": 503, "job_name": "inventory_gold_build", "run_id": 9202, "status": "SUCCESS",
+     "start": "2026-10-27T06:35:00Z", "duration_s": 8890, "typical_duration_s": 1500}
+  ],
+  "error_logs": {
+    "9002": {"synthetic": true, "task": "merge_into_silver", "error_class": "DELTA_FAILED_TO_MERGE_FIELDS",
+             "message": "[DELTA_FAILED_TO_MERGE_FIELDS] Failed to merge fields 'customer_id' and 'customer_id'. Failed to merge incompatible data types LongType and StringType.",
+             "context": "Source file crm_export_2026-10-27.csv: column customer_id now contains values like 'C-104233'. Previous files contained only numbers."},
+    "adf-run-1002": {"synthetic": true, "activity": "run_customer_silver_merge", "error_code": "3204",
+                     "message": "Databricks job run 9002 failed. See the Databricks run output for details."},
+    "9202": {"synthetic": true, "task": "build_inventory_gold", "error_class": null,
+             "message": "No error. Stage 14 had one task processing 61% of the input (skewed key warehouse_id = 'W-001').",
+             "context": "Run time 8890 s versus a typical 1500 s."}
+  }
+}

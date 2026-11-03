@@ -1,0 +1,4 @@
+pipeline,dataset,owner_team,on_call_contact,sla_utc,criticality
+customer_ingestion,customers,Customer Data Engineering,customer-data-oncall,06:00,high
+sales_daily_load,sales_orders,Sales Data Engineering,sales-data-oncall,07:00,high
+inventory_snapshot,inventory,Supply Chain Data Engineering,supply-data-oncall,08:30,medium

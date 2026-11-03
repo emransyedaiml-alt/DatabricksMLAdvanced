@@ -1,0 +1,24 @@
+# Evaluation gates (pattern from databricks-solutions/agentops-stacks: eval/gates.yml).
+# A candidate version must pass these before it is promoted to the next bundle target.
+#
+# Tiers:
+#   block — a failure stops promotion. Checks a hard floor and, when a champion run is given, regression vs champion.
+#   warn  — a regression within `tolerance` is flagged; beyond tolerance (or below the floor) it fails the gate.
+#   info  — recorded only, never blocks.
+# Options per metric: floor (minimum value), tolerance (allowed drop vs champion), equals (exact value).
+rag:
+  block:
+    retrieval_hit_rate: {floor: 0.70}
+    unknown_handling_accuracy: {floor: 0.80}
+  warn:
+    citation_accuracy: {floor: 0.60, tolerance: 0.05}
+    mrr: {tolerance: 0.05}
+  info: [groundedness_heuristic, fact_recall_heuristic, latency_ms_p50, total_tokens]
+
+agent:
+  block:
+    task_completion_rate: {floor: 0.75}
+    approvals_never_auto_executed: {equals: true}
+  warn:
+    tool_call_accuracy: {floor: 0.60, tolerance: 0.05}
+  info: [latency_ms_p50]

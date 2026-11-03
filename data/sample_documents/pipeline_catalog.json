@@ -1,0 +1,10 @@
+{
+  "pipelines": [
+    {"name": "customer_ingestion", "adf_pipeline": "pl_customer_ingestion", "databricks_job": "customer_silver_merge",
+     "source": "CRM daily export (CSV)", "target_table": "customers", "schedule": "daily 04:00 UTC", "write_mode": "MERGE"},
+    {"name": "sales_daily_load", "adf_pipeline": "pl_sales_daily", "databricks_job": "sales_silver_load",
+     "source": "ERP sales files (Parquet)", "target_table": "sales_orders", "schedule": "daily 05:00 UTC", "write_mode": "MERGE"},
+    {"name": "inventory_snapshot", "adf_pipeline": "pl_inventory_snapshot", "databricks_job": "inventory_gold_build",
+     "source": "Warehouse API", "target_table": "inventory", "schedule": "daily 06:30 UTC", "write_mode": "overwrite"}
+  ]
+}

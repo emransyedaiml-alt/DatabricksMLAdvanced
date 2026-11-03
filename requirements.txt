@@ -1,0 +1,7 @@
+# Runtime packages. Databricks Apps installs this file when the app is deployed, so keep it to what the app needs.
+numpy>=1.26,<3
+PyYAML==6.0.2
+requests==2.32.3
+pypdf==5.1.0
+databricks-sdk>=0.40,<1
+streamlit==1.41.1

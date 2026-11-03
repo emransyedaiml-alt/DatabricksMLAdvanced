@@ -1,0 +1,34 @@
+# Example Azure DevOps pipeline. Variable group "eika-databricks" holds DATABRICKS_HOST, DATABRICKS_CLIENT_ID and
+# DATABRICKS_CLIENT_SECRET (mark the secret as secret; ideally link the group to Azure Key Vault).
+trigger: [main]
+pr: [main]
+
+variables:
+  - group: eika-databricks
+
+stages:
+  - stage: test
+    jobs:
+      - job: unit_tests
+        pool: {vmImage: ubuntu-latest}
+        steps:
+          - task: UsePythonVersion@0
+            inputs: {versionSpec: "3.11"}
+          - script: pip install numpy PyYAML requests pypdf pytest && python -m pytest -q
+            displayName: Run tests
+
+  - stage: deploy_dev
+    dependsOn: test
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: bundle
+        pool: {vmImage: ubuntu-latest}
+        steps:
+          - script: curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+            displayName: Install Databricks CLI
+          - script: databricks bundle validate -t dev && databricks bundle deploy -t dev
+            displayName: Validate and deploy bundle
+            env:
+              DATABRICKS_HOST: $(DATABRICKS_HOST)
+              DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
+              DATABRICKS_CLIENT_SECRET: $(DATABRICKS_CLIENT_SECRET)

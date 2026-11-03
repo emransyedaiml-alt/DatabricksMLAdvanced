@@ -1,0 +1,37 @@
+# Workflows included by databricks.yml. Both jobs run on serverless compute.
+resources:
+  jobs:
+    eika_build_index:
+      name: eika - build knowledge index (${var.profile})
+      description: Incremental ingestion → chunking → embeddings → vector index. Safe to re-run.
+      tags: {project: eika, environment: "${bundle.target}"}
+      email_notifications:
+        on_failure: ["${var.notification_email}"]
+      parameters:
+        - {name: profile, default: "${var.profile}"}
+      tasks:
+        - task_key: ingest
+          notebook_task: {notebook_path: ../../notebooks/stage_a_rag/02_Document_Ingestion}
+        - task_key: chunk
+          depends_on: [{task_key: ingest}]
+          notebook_task: {notebook_path: ../../notebooks/stage_a_rag/03_Text_Chunking}
+        - task_key: embed_and_index
+          depends_on: [{task_key: chunk}]
+          notebook_task: {notebook_path: ../../notebooks/stage_a_rag/05_Vector_Search}
+
+    eika_evaluate:
+      name: eika - evaluate RAG and agent (${var.profile})
+      description: Runs the evaluation sets and logs measured metrics to MLflow.
+      tags: {project: eika, environment: "${bundle.target}"}
+      parameters:
+        - {name: profile, default: "${var.profile}"}
+      tasks:
+        - task_key: rag_evaluation
+          notebook_task: {notebook_path: ../../notebooks/stage_a_rag/07_RAG_Evaluation}
+        - task_key: agent_evaluation
+          depends_on: [{task_key: rag_evaluation}]
+          notebook_task: {notebook_path: ../../notebooks/stage_b_agentic_ai/07_Agent_Evaluation}
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: UTC
+        pause_status: PAUSED

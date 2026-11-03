@@ -1,0 +1,13 @@
+[
+  {"request": "Why did yesterday's customer ingestion pipeline fail?",
+   "expected_tools": ["get_pipeline_run_details", "get_pipeline_error_logs", "search_operational_documents"],
+   "expected_root_cause": "schema_mismatch"},
+  {"request": "The sales daily load from yesterday has no data in the report. What happened?",
+   "expected_tools": ["get_pipeline_run_details", "run_approved_quality_checks"],
+   "expected_root_cause": "late_arrival"},
+  {"request": "Why was the inventory snapshot so slow yesterday?",
+   "expected_tools": ["get_pipeline_run_details", "get_pipeline_error_logs"],
+   "expected_root_cause": "performance"},
+  {"request": "Investigate the payroll export pipeline failure.",
+   "expected_tools": [], "expected_error": "unknown_pipeline"}
+]

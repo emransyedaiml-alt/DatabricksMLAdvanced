@@ -1,0 +1,13 @@
+# Local development, tests and notebook extras (not installed by the app).
+-r requirements.txt
+
+# Databricks integrations (ML runtimes ship these; serverless notebooks install them with %pip)
+mlflow>=3.1,<4
+databricks-vectorsearch>=0.50
+
+# Tests
+pytest==8.3.4
+
+# Optional: Azure Data Factory monitoring adapter (enterprise, untested here)
+# azure-identity==1.19.0
+# azure-mgmt-datafactory==9.1.0

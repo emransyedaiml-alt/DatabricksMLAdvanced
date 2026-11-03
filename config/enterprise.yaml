@@ -1,0 +1,101 @@
+# Enterprise profile: Azure Databricks with Unity Catalog, ADLS Gen2, Vector Search and Foundation Model APIs.
+# Workspace-specific values are placeholders: set them here or override with EIKA__<SECTION>__<KEY> variables.
+# Never put tokens or keys in this file; use Databricks secret scopes backed by Azure Key Vault.
+profile: enterprise
+
+paths:
+  sample_documents: abfss://knowledge@<storage-account>.dfs.core.windows.net/documents   # ADLS Gen2 via a UC external location
+  pipeline_logs: ""                                 # not used: monitoring reads the Jobs API / ADF
+  sample_tables: ""
+  work_dir: /Volumes/main/eika/work                 # Unity Catalog volume for manifests and audit files
+
+unity_catalog:
+  catalog: main
+  schema: eika
+  documents_table: main.eika.documents             # one row per source document (metadata + hash + status)
+  chunks_table: main.eika.document_chunks          # source table for the Vector Search index (Change Data Feed on)
+
+ingestion:
+  supported_types: [pdf, txt, csv, json, md]
+  registry: delta
+
+chunking:
+  chunk_size: 1000
+  chunk_overlap: 150
+  min_chunk_chars: 40
+
+embedding:
+  provider: databricks
+  endpoint: databricks-bge-large-en
+  dimension: 1024
+  hashing_dimension: 512
+  batch_size: 32
+  max_retries: 5
+
+vector_store:
+  backend: databricks_vector_search
+  endpoint_name: eika-vs-endpoint
+  index_name: main.eika.document_chunks_index
+  primary_key: chunk_id
+  text_column: text
+  embedding_dimension: 1024
+  pipeline_type: TRIGGERED
+
+retrieval:
+  top_k: 5
+  similarity_threshold: 0.55
+  reranker: lexical
+  candidate_multiplier: 3
+
+llm:
+  provider: databricks
+  endpoint: databricks-meta-llama-3-3-70b-instruct
+  temperature: 0.0
+  max_tokens: 900
+  timeout_s: 90
+  max_retries: 4
+
+agent:
+  mode: llm
+  max_steps: 8
+  monitoring_source: databricks_jobs               # databricks_jobs (Jobs API, read-only) | adf (Azure Data Factory)
+  adf:
+    subscription_id: ""                            # set via EIKA__AGENT__ADF__SUBSCRIPTION_ID
+    resource_group: ""
+    factory_name: ""
+  actions_enabled: false                           # enable only with a service principal limited to job reruns
+
+security:
+  secret_scope: eika                               # Key Vault-backed secret scope
+  default_document_groups: [public]
+  role_tools:
+    analyst: [get_pipeline_run_details, get_databricks_job_status, get_pipeline_error_logs,
+              search_operational_documents, get_table_metadata, run_approved_quality_checks]
+    data_engineer: [get_pipeline_run_details, get_databricks_job_status, get_pipeline_error_logs,
+                    search_operational_documents, get_table_metadata, run_approved_quality_checks,
+                    request_pipeline_restart_approval]
+  approved_tables: [main.sales.orders, main.crm.customers]
+  approved_pipelines: [customer_ingestion, sales_daily_load, inventory_snapshot]
+
+evaluation:
+  rag_dataset: data/eval_rag.json
+  agent_dataset: data/eval_agent.json
+
+data_quality:
+  backend: spark                                   # COUNT-only queries on Unity Catalog tables
+  checks:
+    main.sales.orders:
+      - {id: DQ-S01, type: unique, column: order_id, severity: blocking}
+      - {id: DQ-S02, type: not_null, column: customer_id, severity: blocking}
+      - {id: DQ-S03, type: min_value, column: amount, min: 0, severity: blocking}
+      - {id: DQ-S04, type: allowed_values, column: currency, values: [USD, EUR, GBP, INR], severity: warning}
+      - {id: DQ-S06, type: foreign_key, column: customer_id, ref_table: main.crm.customers, ref_column: customer_id, severity: warning}
+    main.crm.customers:
+      - {id: DQ-C01, type: unique, column: customer_id, severity: blocking}
+      - {id: DQ-C02, type: not_null, column: customer_id, severity: blocking}
+      - {id: DQ-C03, type: not_null, column: email, severity: warning}
+
+pipelines:                                         # maps pipeline names to their target tables
+  customer_ingestion: {target_table: main.crm.customers, databricks_job: customer_silver_merge}
+  sales_daily_load: {target_table: main.sales.orders, databricks_job: sales_silver_load}
+  inventory_snapshot: {target_table: main.supply.inventory, databricks_job: inventory_gold_build}

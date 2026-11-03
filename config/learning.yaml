@@ -1,0 +1,85 @@
+# Learning profile: runs in Databricks Free Edition, a classic workspace, or locally.
+# Needs no Vector Search endpoint, no model-serving endpoint of your own, no Key Vault and no ADLS connection.
+# Learning substitutes are explicit and labelled: in-memory vector index, synthetic pipeline logs, mock monitoring.
+profile: learning
+
+paths:
+  sample_documents: data/sample_documents          # local sample files (stand-in for ADLS Gen2)
+  pipeline_logs: data/sample_pipeline_logs         # SYNTHETIC monitoring data, clearly labelled
+  sample_tables: data/sample_tables                # small CSV tables for read-only data-quality checks
+  work_dir: .eika_work                             # manifest, vector index, audit log
+
+ingestion:
+  supported_types: [pdf, txt, csv, json, md]
+  registry: file                                   # file = JSON manifest; enterprise uses a Delta table
+
+chunking:
+  chunk_size: 800                                  # characters per chunk
+  chunk_overlap: 120                               # characters shared by neighbouring chunks
+  min_chunk_chars: 40
+
+embedding:
+  provider: databricks                             # databricks = Foundation Model API; hashing = offline LEARNING-ONLY embedder
+  endpoint: databricks-bge-large-en
+  dimension: 1024                                  # bge-large-en (and gte-large-en) return 1024 values; hashing uses hashing_dimension
+  hashing_dimension: 512
+  batch_size: 16
+  max_retries: 6
+
+vector_store:
+  backend: in_memory                               # in_memory (numpy, FAISS if installed) | databricks_vector_search
+  persist_file: vector_index.npz
+
+retrieval:
+  top_k: 4
+  similarity_threshold: 0.30                       # cosine similarity; tune per embedding model
+  reranker: lexical                                # none | lexical (keyword-overlap rerank of the top candidates)
+  candidate_multiplier: 3
+
+llm:
+  provider: databricks                             # databricks = Foundation Model API; scripted = deterministic test double
+  endpoint: databricks-meta-llama-3-3-70b-instruct
+  temperature: 0.0
+  max_tokens: 700
+  timeout_s: 60
+  max_retries: 3
+
+agent:
+  mode: llm                                        # llm = tool-calling with the model above; rules = deterministic planner
+  max_steps: 6
+  monitoring_source: mock                          # mock = SYNTHETIC logs in data/sample_pipeline_logs
+  actions_enabled: false                           # state-changing actions are OFF; approval is always required
+
+security:
+  default_document_groups: [public]
+  role_tools:
+    analyst: [get_pipeline_run_details, get_databricks_job_status, get_pipeline_error_logs,
+              search_operational_documents, get_table_metadata, run_approved_quality_checks]
+    data_engineer: [get_pipeline_run_details, get_databricks_job_status, get_pipeline_error_logs,
+                    search_operational_documents, get_table_metadata, run_approved_quality_checks,
+                    request_pipeline_restart_approval]
+  approved_tables: [sales_orders, customers]
+  approved_pipelines: [customer_ingestion, sales_daily_load, inventory_snapshot]
+
+evaluation:
+  rag_dataset: data/eval_rag.json
+  agent_dataset: data/eval_agent.json
+
+data_quality:                                      # the ONLY checks the agent may run (read-only)
+  backend: csv                                     # csv = SYNTHETIC tables in data/sample_tables
+  checks:
+    sales_orders:
+      - {id: DQ-S01, type: unique, column: order_id, severity: blocking}
+      - {id: DQ-S02, type: not_null, column: customer_id, severity: blocking}
+      - {id: DQ-S03, type: min_value, column: amount, min: 0, severity: blocking}
+      - {id: DQ-S04, type: allowed_values, column: currency, values: [USD, EUR, GBP, INR], severity: warning}
+      - {id: DQ-S06, type: foreign_key, column: customer_id, ref_table: customers, ref_column: customer_id, severity: warning}
+    customers:
+      - {id: DQ-C01, type: unique, column: customer_id, severity: blocking}
+      - {id: DQ-C02, type: not_null, column: customer_id, severity: blocking}
+      - {id: DQ-C03, type: not_null, column: email, severity: warning}
+
+pipelines:                                         # maps pipeline names to their target tables
+  customer_ingestion: {target_table: customers, databricks_job: customer_silver_merge}
+  sales_daily_load: {target_table: sales_orders, databricks_job: sales_silver_load}
+  inventory_snapshot: {target_table: inventory, databricks_job: inventory_gold_build}

@@ -1,0 +1,21 @@
+Medallion Architecture Guide: Bronze, Silver and Gold
+
+Our lakehouse organises data in three layers.
+
+Bronze layer
+Bronze stores raw data exactly as received from the source, plus ingestion metadata such as file name and
+ingestion timestamp. No business rules are applied. Bronze lets us replay history if a downstream rule changes.
+
+Silver layer
+Silver holds cleaned and conformed data. In Bronze-to-Silver processing we apply data types, deduplicate records,
+enforce data quality rules, standardise codes (for example currency and country), and join reference data.
+Silver tables are the trusted source for analytics and data science.
+
+Gold layer
+Gold contains business-level aggregates and data products, such as daily sales by region or customer lifetime
+value, shaped for reporting tools and dashboards.
+
+Difference between Bronze and Silver processing
+Bronze processing focuses on landing data reliably and completely, without changing it. Silver processing focuses
+on correctness: types, duplicates, quality rules and consistent keys. A failure in Bronze usually means the data did
+not arrive; a failure in Silver usually means the data arrived but broke a rule or a schema expectation.

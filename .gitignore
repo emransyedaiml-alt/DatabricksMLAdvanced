@@ -1,0 +1,19 @@
+# Local state written at run time
+.eika_work/
+*.npz
+audit.jsonl
+
+# Secrets
+.env
+*.cfg
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Databricks
+.databricks/

@@ -1,0 +1,17 @@
+# Databricks Apps entry point (used when the bundle deploys the app from the project root).
+# Endpoint names come from the app's declared resources (databricks.yml → resources.apps.eika_app.resources), and
+# override the profile through EIKA__<SECTION>__<KEY> variables.
+command:
+  - streamlit
+  - run
+  - app/app.py
+  - --server.headless=true
+env:
+  - name: EIKA_PROFILE
+    value: learning
+  - name: EIKA__LLM__ENDPOINT
+    valueFrom: llm-endpoint
+  - name: EIKA__EMBEDDING__ENDPOINT
+    valueFrom: embedding-endpoint
+  - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+    value: "false"

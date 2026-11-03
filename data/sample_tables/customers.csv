@@ -1,0 +1,8 @@
+customer_id,customer_name,email,country,created_date
+100231,Northwind Traders,[EMAIL-REDACTED-1],US,2026-01-12
+100232,Contoso Ltd,[EMAIL-REDACTED-2],GB,2026-02-03
+100233,Fabrikam Inc,,US,2026-02-21
+100233,Fabrikam Inc,[EMAIL-REDACTED-3],US,2026-02-21
+100234,Adventure Works,[EMAIL-REDACTED-4],IN,2026-03-15
+,Tailspin Toys,[EMAIL-REDACTED-5],DE,2026-04-02
+100236,Wide World Importers,[EMAIL-REDACTED-6],US,2026-05-19
