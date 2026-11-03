@@ -1,0 +1,326 @@
+{
+  "description": "Runs all 18 EIKA notebooks with the learning profile. Stage C creates serving, Vector Search, and Databricks App resources. Promotion is off.",
+  "email_notifications": {},
+  "format": "MULTI_TASK",
+  "max_concurrent_runs": 1,
+  "name": "EIKA - GenAI and Agentic AI Full Run - Students",
+  "parameters": [
+    {
+      "default": "learning",
+      "name": "profile"
+    }
+  ],
+  "queue": {
+    "enabled": true
+  },
+  "tags": {
+    "course": "swsacademy",
+    "project": "eika"
+  },
+  "tasks": [
+    {
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/01_Architecture_and_Setup",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a1_architecture_setup",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a1_architecture_setup"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/02_Document_Ingestion",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a2_document_ingestion",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a2_document_ingestion"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/03_Text_Chunking",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a3_text_chunking",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a3_text_chunking"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/04_Embedding_Generation",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a4_embedding_generation",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a4_embedding_generation"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/05_Vector_Search",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a5_vector_search",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a5_vector_search"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/06_RAG_Pipeline",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a6_rag_pipeline",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a6_rag_pipeline"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_a_rag/07_RAG_Evaluation",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "a7_rag_evaluation",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "a7_rag_evaluation"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/01_Agentic_AI_Architecture",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b1_agent_architecture",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b1_agent_architecture"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/02_Tool_Calling",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b2_tool_calling",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b2_tool_calling"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/03_Monitoring_Agent",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b3_monitoring_agent",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b3_monitoring_agent"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/04_Knowledge_Agent",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b4_knowledge_agent",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b4_knowledge_agent"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/05_Data_Quality_Agent",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b5_data_quality_agent",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b5_data_quality_agent"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/06_Agent_Orchestration",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b6_agent_orchestration",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b6_agent_orchestration"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_b_agentic_ai/07_Agent_Evaluation",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "b7_agent_evaluation",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "b7_agent_evaluation"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "adb_genai_wrk_dev",
+          "cleanup": "no",
+          "deploy_endpoint": "yes",
+          "schema": "eika_students"
+        },
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_c_production/01_Serve_Agent_with_ResponsesAgent",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "c1_responses_agent",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "c1_responses_agent"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "base_parameters": {
+          "catalog": "adb_genai_wrk_dev",
+          "cleanup": "no",
+          "create_resources": "yes",
+          "schema": "eika_students"
+        },
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_c_production/02_Vector_Search_and_MCP_Retrieval",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "c2_vector_search_mcp",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "c2_vector_search_mcp"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "base_parameters": {
+          "promote": "no"
+        },
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_c_production/03_Evaluation_Gates_and_Promotion",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "c3_evaluation_gates",
+      "timeout_seconds": 3600
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "c3_evaluation_gates"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "base_parameters": {
+          "deploy": "yes",
+          "teardown": "none"
+        },
+        "notebook_path": "/Workspace/REPLACE_WITH_EIKA_PROJECT_FOLDER/notebooks/stage_c_production/04_Deploy_as_Databricks_App",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "c4_databricks_app",
+      "timeout_seconds": 3600
+    }
+  ],
+  "timeout_seconds": 0,
+  "webhook_notifications": {}
+}
