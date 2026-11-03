@@ -78,6 +78,25 @@ if dbutils.widgets.get("deploy") == "yes":
         w.apps.create_and_wait(app=App(name=APP, description="Enterprise Intelligent Knowledge Assistant",
                                        resources=resources))
         print("Created app", APP)
+    from time import monotonic, sleep
+
+    deadline = monotonic() + 600
+    start_requested = False
+    while True:
+        app = w.apps.get(APP)
+        compute = app.compute_status
+        state = getattr(compute.state, "value", compute.state)
+        if state == "ACTIVE":
+            break
+        if state == "STOPPED" and not start_requested:
+            w.apps.start(name=APP)
+            start_requested = True
+        elif state not in {"STARTING", "STOPPING", "STOPPED"}:
+            raise RuntimeError(f"App {APP} compute is {state}: {compute.message}")
+        if monotonic() >= deadline:
+            raise TimeoutError(f"App {APP} compute did not become ACTIVE: {compute.message}")
+        sleep(5)
+
     deployment = w.apps.deploy_and_wait(app_name=APP, app_deployment=AppDeployment(source_code_path=REPO_ROOT))
     app = w.apps.get(APP)
     print("Deployment status:", deployment.status.state, "|", deployment.status.message)
