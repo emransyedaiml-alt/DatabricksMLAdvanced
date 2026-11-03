@@ -15,8 +15,8 @@
 # MAGIC - Set **UC catalog** to a catalog you can create a schema in. This notebook stops early if the catalog does not
 # MAGIC   exist. In Databricks Free Edition, use `workspace`.
 # MAGIC
-# MAGIC **What it costs**: serverless compute and Foundation Model API calls. Stage C's billable steps stay **off** in this
-# MAGIC job (no serving endpoint, no Vector Search endpoint, no Databricks App, no promotion).
+# MAGIC **What it costs**: serverless compute and Foundation Model API calls. Billable Stage C resources are enabled by default and can include a serving endpoint, Vector Search resources, and a Databricks App. Set **Enable billable Stage C resources** to `no` to skip their creation. Promotion stays off.
+# MAGIC The job starts by default. Set **Start the job after creating it** to `no` to save the job without starting it.
 # MAGIC
 # MAGIC Running it again updates the job instead of creating a duplicate.
 
@@ -26,7 +26,9 @@ dbutils.widgets.dropdown("profile", "learning", ["learning", "enterprise"], "Pro
 dbutils.widgets.text("catalog", "main", "UC catalog for Stage C")
 dbutils.widgets.text("schema", "eika", "UC schema for Stage C")
 dbutils.widgets.text("name_suffix", "", "Job name suffix (optional, e.g. your initials)")
-dbutils.widgets.dropdown("run_now", "no", ["no", "yes"], "Start the job after creating it")
+dbutils.widgets.dropdown("run_now", "yes", ["no", "yes"], "Start the job after creating it")
+
+dbutils.widgets.dropdown("enable_billable", "yes", ["no", "yes"], "Enable billable Stage C resources")
 
 # COMMAND ----------
 
@@ -41,6 +43,7 @@ CATALOG = dbutils.widgets.get("catalog").strip()
 SCHEMA = dbutils.widgets.get("schema").strip()
 SUFFIX = dbutils.widgets.get("name_suffix").strip()
 RUN_NOW = dbutils.widgets.get("run_now") == "yes"
+BILLABLE = dbutils.widgets.get("enable_billable")
 
 try:
     w.workspace.get_status(NB)
@@ -79,10 +82,10 @@ items = [
     ("b5_data_quality_agent", "stage_b_agentic_ai/05_Data_Quality_Agent", {}),
     ("b6_agent_orchestration", "stage_b_agentic_ai/06_Agent_Orchestration", {}),
     ("b7_agent_evaluation", "stage_b_agentic_ai/07_Agent_Evaluation", {}),
-    ("c1_responses_agent", "stage_c_production/01_Serve_Agent_with_ResponsesAgent", dict(uc, deploy_endpoint="no", cleanup="no")),
-    ("c2_vector_search_mcp", "stage_c_production/02_Vector_Search_and_MCP_Retrieval", dict(uc, create_resources="no", cleanup="no")),
+    ("c1_responses_agent", "stage_c_production/01_Serve_Agent_with_ResponsesAgent", dict(uc, deploy_endpoint=BILLABLE, cleanup="no")),
+    ("c2_vector_search_mcp", "stage_c_production/02_Vector_Search_and_MCP_Retrieval", dict(uc, create_resources=BILLABLE, cleanup="no")),
     ("c3_evaluation_gates", "stage_c_production/03_Evaluation_Gates_and_Promotion", {"promote": "no"}),
-    ("c4_databricks_app", "stage_c_production/04_Deploy_as_Databricks_App", {"deploy": "no", "teardown": "none"}),
+    ("c4_databricks_app", "stage_c_production/04_Deploy_as_Databricks_App", {"deploy": BILLABLE, "teardown": "none"}),
 ]
 
 def chain(items):
@@ -107,7 +110,7 @@ def chain(items):
 name = "EIKA - GenAI and Agentic AI Full Run" + (f" - {SUFFIX}" if SUFFIX else "")
 settings = {
     "name": name,
-    "description": "Runs Enterprise Intelligent Knowledge Assistant stages A, B and C in order. Billable Stage C steps are off.",
+    "description": "Runs Enterprise Intelligent Knowledge Assistant stages A, B and C in order. Billable Stage C resources: " + BILLABLE + ".",
     "tags": {"project": "eika", "course": "swsacademy"},
     "max_concurrent_runs": 1,
     "parameters": [{"name": "profile", "default": PROFILE}],
@@ -128,7 +131,7 @@ print(f"Tasks: {len(items)}. Open it: {w.config.host}/jobs/{job_id}")
 
 # MAGIC %md
 # MAGIC ## 3. Start the job (optional)
-# MAGIC Set **Start the job after creating it** to `yes`, or press **Run now** on the job page.
+# MAGIC The job starts unless **Start the job after creating it** is set to `no`.
 
 # COMMAND ----------
 
